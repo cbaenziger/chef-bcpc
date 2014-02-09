@@ -28,20 +28,27 @@ if [[ -f .chef/knife.rb ]]; then
 fi
 echo -e ".chef/knife.rb\nhttp://$BOOTSTRAP_IP:4000\n\n\n\n\n\n.\n" | knife configure --initial
 
-cp -p .chef/knife.rb .chef/knife-proxy.rb
-
 if [[ ! -z "$http_proxy" ]]; then
-  echo  "http_proxy  \"${http_proxy}\"" >> .chef/knife-proxy.rb
-  echo "https_proxy \"${https_proxy}\"" >> .chef/knife-proxy.rb
+  cat >> .chef/knife.rb << EOH
+http_proxy "${http_proxy}"
+https_proxy "${https_proxy}"
+no_proxy "${no_proxy}"
+ENV['http_proxy'] = "${http_proxy}"
+ENV['https_proxy'] = "${http_proxy}"
+ENV['no_proxy'] = "${no_proxy}"
+ENV['HTTP_PROXY'] = "${http_proxy}"
+ENV['HTTPS_PROXY'] = "${http_proxy}"
+ENV['NO_PROXY'] = "${no_proxy}"
+EOH
 fi
 
 cd cookbooks
 
 # allow versions on cookbooks so 
-for cookbook in "apt 1.10.0" ubuntu cron "chef-client 3.1.2" ntp "yum 2.4.2" logrotate; do
+for cookbook in "apt 1.10.0" ubuntu cron "chef-client 3.1.2" ntp yum logrotate python yum-epel build-essential; do
   if [[ ! -d ${cookbook% *} ]]; then
      # unless the proxy was defined this knife config will be the same as the one generated above
-    knife cookbook site download $cookbook --config ../.chef/knife-proxy.rb
+    knife cookbook site download $cookbook --config ../.chef/knife.rb
     tar zxf ${cookbook% *}*.tar.gz
     rm ${cookbook% *}*.tar.gz
   fi
