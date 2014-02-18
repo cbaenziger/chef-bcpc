@@ -51,7 +51,7 @@ node.save rescue nil
 apt_repository 'bcpc' do
   uri get_binary_server_url
   components ['main']
-  distribution run_context.cookbook_collection['bcpc'].metadata.version
+  distribution "0.5.0"
   key "#{get_binary_server_url}/apt_key.asc"
   arch "amd64"
 end
