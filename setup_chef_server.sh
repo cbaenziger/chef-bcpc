@@ -5,7 +5,6 @@
 #
 
 set -e
-set -o errtrace
 
 if [[ -f ./proxy_setup.sh ]]; then
   . ./proxy_setup.sh

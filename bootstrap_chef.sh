@@ -11,7 +11,6 @@ if [[ $OSTYPE == msys || $OSTYPE == cygwin ]]; then
 fi
 
 set -e
-set -o errtrace
 
 if [[ $# -gt 1 ]]; then
   KEYFILE="bootstrap_chef.id_rsa"
