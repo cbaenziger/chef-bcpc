@@ -56,7 +56,7 @@ end
 
 bash "install-elasticsearch-plugins" do
     code "tar zxf /tmp/elasticsearch-plugins.tgz -C /usr/share/elasticsearch/plugins/ && rm -rf /tmp/elasticsearch-plugins.tgz"
-    not_if { Dir.exists?("/usr/share/elasticsearch/plugins/head") }
+    not_if "test -d /usr/share/elasticsearch/plugins/head"
 end
 
 package "curl" do

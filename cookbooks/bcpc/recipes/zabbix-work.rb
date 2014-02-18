@@ -28,7 +28,7 @@ end
 
 bash "install-zabbix-agent" do
     code "tar zxf /tmp/zabbix-agent.tar.gz -C /usr/local/ && rm /tmp/zabbix-agent.tar.gz"
-    not_if { File.exists?("/usr/local/sbin/zabbix_agentd") }
+    not_if "test -f /usr/local/sbin/zabbix_agentd"
 end
 
 user node[:bcpc][:zabbix][:user] do

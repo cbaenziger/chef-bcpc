@@ -38,9 +38,16 @@ if node[:bcpc][:virt_type] == "kvm"
     end
 end
 
-python_pip "pyrabbit" do
-    options "--index #{get_binary_server_url}/python/simple"
-    action :install
+remote_file "#{Chef::Config[:file_cache_path]}/pyrabbit-1.0.1.tar.gz" do
+    source "#{get_binary_server_url}/python/pyrabbit-1.0.1.tar.gz"
+    not_if "pip freeze|grep pyrabbit"
+end
+
+bash "install-pyrabbit" do
+    code <<-EOH
+        pip install #{Chef::Config[:file_cache_path]}/pyrabbit-1.0.1.tar.gz
+    EOH
+    not_if "pip freeze|grep pyrabbit"
 end
 
 bash "diamond-set-user" do
