@@ -23,13 +23,14 @@ if [[ -n "$http_proxy" ]]; then
   echo "setting up .wgetrc's to $http_proxy with no_proxy $no_proxy"
   $SSHCMD "echo -e \"http_proxy = $http_proxy\\nhttps_proxy = $https_proxy\\nno_proxy = $no_proxy\" > .wgetrc"
   load_chef_server_ip $ENVIRONMENT
-  # copy /etc/apt/apt.conf to append to or create if non-existant
-  $SSHCMD "cp /etc/apt/apt.conf apt.conf.tmp || touch apt.conf.tmp"
-  # add necessary proxy lines in /etc/apt/apt.conf if not there already
+  temp_file="apt_proxy.tmp"
+  # copy /etc/apt/apt.conf.d/90proxy to append to or create if non-existant
+  $SSHCMD "cp /etc/apt/apt.conf.d/90proxy $temp_file || touch $temp_file"
+  # add necessary proxy lines in /etc/apt/apt.conf.d/90proxy if not there already
   for line in "Acquire::http::Proxy \\\"${http_proxy}\\\"" "Acquire::http::Proxy::$chef_server_ip \\\"DIRECT\\\""; do
-    $SSHCMD "grep -q '${line}' /etc/apt/apt.conf" || $SSHCMD "cat >> apt.conf.tmp <<<\"${line};\""
+    $SSHCMD "grep -q '${line}' /etc/apt/apt.conf.d/90proxy" || $SSHCMD "cat >> $temp_file <<<\"${line};\""
   done
-  $SSHCMD "mv apt.conf.tmp /etc/apt/apt.conf" sudo
+  $SSHCMD "mv $temp_file /etc/apt/apt.conf.d/90proxy" sudo
 fi
 
 echo "setup chef"
