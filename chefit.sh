@@ -27,9 +27,8 @@ if [[ -n "$http_proxy" ]]; then
   # copy /etc/apt/apt.conf.d/90proxy to append to or create if non-existant
   $SSHCMD "cp /etc/apt/apt.conf.d/90proxy $temp_file || touch $temp_file"
   # add necessary proxy lines in /etc/apt/apt.conf.d/90proxy if not there already
-  for line in "Acquire::http::Proxy \\\"${http_proxy}\\\"" "Acquire::http::Proxy::$chef_server_ip \\\"DIRECT\\\""; do
-    $SSHCMD "grep -q '${line}' /etc/apt/apt.conf.d/90proxy" || $SSHCMD "cat >> $temp_file <<<\"${line};\""
-  done
+  apt_no_proxy="Acquire::http::Proxy::$chef_server_ip \\\"DIRECT\\\""
+  $SSHCMD "grep -q '${apt_no_proxy}' /etc/apt/apt.conf.d/90proxy" || $SSHCMD "cat >> $temp_file <<<\"${apt_no_proxy};\""
   $SSHCMD "mv $temp_file /etc/apt/apt.conf.d/90proxy" sudo
 fi
 
