@@ -22,6 +22,11 @@ set -o errtrace
 set -o errexit
 set -o nounset
 
+# If one finds timing issues for installing worknodes, set this to 1
+# and all worknodes will sequentially install, instead of installing
+# in parallel
+REQUIRE_SEQUENTIAL_WORKER_INSTALL=${REQUIRE_SEQUENTIAL_WORKER_INSTALL-0}
+
 # We use exclamation point as a separator but it is a pain to use in
 # strings with variables make it a variable to include in strings
 BANG='!'
@@ -118,7 +123,12 @@ function openstack_install {
   # Do everything else next and group by type of node
   printf "Installing workers...\n"
   for m in $(printf ${hosts// /\\n} | grep -vi "head" | sort); do
-    ( install_machines $m || exit 1 )&
+    if (( REQUIRE_SEQUENTIAL_WORKER_INSTALL == 1 )); then
+      printf "Sequential install of work node ${m}\n"
+      install_machines $m
+    else
+      ( install_machines $m || exit 1 )&
+    fi
   done
   wait
   if [[ -n "${chef_head_node_name-}" ]]; then
