@@ -37,3 +37,22 @@ function load_chef_server_ip {
     exit 1
   fi
 }
+
+# load_binary_server_info
+# Arguments: $1 - Chef Environment
+# Post-Condition: sets $binary_server_url
+#                      $binary_server_host 
+# Raises: Error if Chef environment not passed in
+function load_binary_server_info {
+  environment="${1:?"Need a Chef environment"}"
+
+  bootstrap_server_key='["override_attributes"]["bcpc"]["bootstrap"]["server"]'
+  binary_server_key='["override_attributes"]["bcpc"]["binary_server_url"]'
+  load_json_frag="import json; print json.load(file('environments/${environment}.json'))"
+  # return a full URL (e.g. http://127.0.0.1:8080)
+  export binary_server_url=$(python -c "${load_json_frag}$binary_server_key" 2>/dev/null || \
+    (echo -n "http://"; python -c "${load_json_frag}${bootstrap_server_key}+':8080'"))
+  # return only a host (e.g. 127.0.0.1)
+  export binary_server_host=$(ruby -e "require 'uri'; print URI('$binary_server_url').host")
+}
+
