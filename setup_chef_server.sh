@@ -66,14 +66,10 @@ fi
 ./build_bins.sh
 
 if [[ ! -f /etc/apt/sources.list.d/bcpc.list ]]; then
-  load_binary_server_info "$ENVIRONMENT"
   # Create an Apt repo entry
-  echo "deb [arch=amd64] ${binary_server_url} 0.5.0 main" > /etc/apt/sources.list.d/bcpc.list
+  echo "deb [arch=amd64] file://$(pwd)/bins/ 0.5.0 main" > /etc/apt/sources.list.d/bcpc.list
   # add repo key
   apt-key add bins/apt_key.pub
-  # ensure we do not have a proxy set for the local repo
-  proxy_line="Acquire::http::Proxy::${binary_server_host} 'DIRECT';"
-  grep -q "$proxy_line" /etc/apt/apt.conf || echo "$proxy_line" >> /etc/apt/apt.conf
   # update only the BCPC local repo
   apt-get -o Dir::Etc::SourceList=/etc/apt/sources.list.d/bcpc.list,Dir::Etc::SourceParts= update
 fi

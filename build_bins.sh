@@ -32,11 +32,6 @@ APT_REPO="dists/${APT_REPO_VERSION}/"
 APT_REPO_BINS="${APT_REPO}/main/binary-amd64/"
 mkdir -p $APT_REPO_BINS
 
-# serve the files if nothing else is doing so already
-netstat -nlt4 | grep -q ':8080' || nohup python -m SimpleHTTPServer 8080 > ../python_server.log 2>&1 &
-# wait for python to come-up (as we may need it during apt-get update)
-sleep 5
-
 # Get up to date
 apt-get -y update
 
