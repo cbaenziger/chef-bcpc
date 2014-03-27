@@ -5,10 +5,9 @@
 #
 
 #export PROXY="proxy.example.com:80"
-export PROXY=""
 
 export CURL='curl'
-if [ -n "$PROXY" ]; then
+if [ -n "${PROXY-}" ]; then
   echo "Using a proxy at $PROXY"
 
   local_ips=$(ip addr list |grep 'inet '|sed -e 's/.* inet //' -e 's#/.*#,#')
@@ -49,7 +48,7 @@ function load_binary_server_info {
 # Post-Conditions: sets $chef_server_ip
 # Raises: Error if Knife fails to run
 function load_chef_server_ip {
-  export chef_server_ip=$(knife node show $(hostname) -a 'bcpc.management.ip' | tail -1 | sed 's/.* //')
+  export chef_server_ip=$(knife node show $(knife node list | egrep "^[ ]*${hostname}($|\..*)") -a 'bcpc.management.ip' | tail 1 | sed 's/.* //')
   if [[ -z "$chef_server_ip" ]]; then
     echo 'Failed to load $chef_server_ip!' > /dev/stderr
     exit 1

@@ -18,7 +18,6 @@
 #
 
 include_recipe "bcpc::default"
-include_recipe "bcpc::ceph-head"
 include_recipe "bcpc::apache2"
 
 make_config('mysql-graphite-user', "graphite")
@@ -32,10 +31,45 @@ make_config('mysql-graphite-password', secure_password)
     end
 end
 
-%w{python-pip python-cairo python-django python-django-tagging python-ldap python-twisted python-memcache}.each do |pkg|
+%w{python-mysqldb python-pip python-cairo python-django python-django-tagging python-ldap python-twisted python-memcache}.each do |pkg|
     package pkg do
         action :upgrade
     end
+end
+
+%w{cache relay}.each do |pkg|
+    template "/etc/init.d/carbon-#{pkg}" do
+        source "init.d-carbon.erb"
+        owner "root"
+        group "root"
+        mode 00755
+        notifies :restart, "service[carbon-#{pkg}]", :delayed
+        variables( :daemon => "#{pkg}" )
+    end
+    service "carbon-#{pkg}" do
+        action [ :enable, :start ]
+    end
+end
+
+# #### #
+# Adding this to set the graphite ip
+# #### #
+ruby_block "graphite_ip" do
+  block do
+    if (node[:bcpc].attribute?(:graphite) \
+        and node[:bcpc][:graphite].attribute?(:ip) \
+        and node[:bcpc][:graphite][:ip]) \
+    then
+      Chef::Log.info("graphite ip = '#{node[:bcpc][:graphite][:ip]}'")
+    else
+      Chef::Log.info("node[:bcpc][:graphite][:ip] is not set")
+      if not node[:bcpc][:management][:vip] then
+        Chef::Application.fatal!("No graphite ip or management vip!", 1)
+      else
+        node.override[:bcpc][:graphite][:ip] = node[:bcpc][:management][:vip]
+      end
+    end
+  end
 end
 
 template "/opt/graphite/conf/carbon.conf" do
@@ -133,18 +167,4 @@ bash "graphite-database-sync" do
         python /opt/graphite/webapp/graphite/manage.py createsuperuser --username=admin --email=#{node[:bcpc][:admin_email]} --noinput
     EOH
     notifies :restart, "service[apache2]", :immediately
-end
-
-%w{cache relay}.each do |pkg|
-    template "/etc/init.d/carbon-#{pkg}" do
-        source "init.d-carbon.erb"
-        owner "root"
-        group "root"
-        mode 00755
-        notifies :restart, "service[carbon-#{pkg}]", :delayed
-        variables( :daemon => "#{pkg}" )
-    end
-    service "carbon-#{pkg}" do
-        action [ :enable, :start ]
-    end
 end

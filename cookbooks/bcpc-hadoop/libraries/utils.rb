@@ -129,10 +129,12 @@ end
 
 def float_host(*args)
   "f-" + args.join('.')
+  args.join('.')
 end
 
 def storage_host(*args)
   "s-" + args.join('.')
+  args.join('.')
 end
 
 def zk_formatted?

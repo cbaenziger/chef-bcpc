@@ -4,11 +4,9 @@
    hadoop-mapreduce
    hbase-regionserver
    hadoop-client
+   lzop
    hadoop-lzo
-   impala-server
-   impala
-   hive
-   impala-shell}.each do |pkg|
+   hive}.each do |pkg|
   package pkg do
     action :upgrade
   end
@@ -65,21 +63,12 @@ end
   end
 end
 
-template "/etc/default/impalad" do
-  mode 0755
-  source "impala.start.erb"
-  variables(:state_store => get_nodes_for("impala_statestore"))
-end
-
-%w{hbase-regionserver impala-server}.each do |svc|
+%w{hbase-regionserver}.each do |svc|
   service svc do
     action [:enable, :start]
-    subscribes :restart, "template[/etc/default/impalad]", :delayed
     subscribes :restart, "template[/etc/hadoop/conf/hdfs-site.xml]", :delayed
     subscribes :restart, "template[/etc/hadoop/conf/yarn-site.xml]", :delayed
     subscribes :restart, "template[/etc/hadoop/conf/hbase-site.xml]", :delayed
   end
 end
-
-
 

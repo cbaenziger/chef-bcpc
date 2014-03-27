@@ -47,6 +47,7 @@ bash "format namenode" do
   user "hdfs"
   action :run
   creates "/disk/#{node[:bcpc][:hadoop][:mounts][0]}/dfs/nn/current/VERSION"
+  notifies :create, "ruby_block[grab the format UUID File]", :immediately
   not_if { File.exists?("/disk/#{node[:bcpc][:hadoop][:mounts][0]}/dfs/nn/current/VERSION")  }
 end
 
@@ -64,9 +65,24 @@ service "hadoop-hdfs-zkfc" do
 end
 
 service "hadoop-hdfs-namenode" do
+    supports :status => true
+    action :stop
+  only_if "service hadoop-hdfs-namenode status"
+end
+
+bash "initialize-shared-edits" do
+  code "hdfs namenode -initializeSharedEdits"
+  user "hdfs"
+  action :run
+  # need more than ., .., in_use.lock
+  not_if { Dir.entries("/disk/#{node[:bcpc][:hadoop][:mounts][0]}/dfs/jn/#{node.chef_environment}").include?("current") }
+end
+
+service "hadoop-hdfs-namenode" do
   action [:enable, :start]
   subscribes :restart, "template[/etc/hadoop/conf/hdfs-site.xml]", :delayed
   subscribes :restart, "template[/etc/hadoop/conf/hdfs-policy.xml]", :delayed
+  subscribes :restart, "bash[initialize-shared-edits]", :immediate
 end
 
 

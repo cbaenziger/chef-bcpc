@@ -1,6 +1,6 @@
 include_recipe 'dpkg_autostart'
 
-%w{hadoop-hdfs-journalnode}.each do |pkg|
+%w{hadoop-hdfs-namenode }.each do |pkg|
   dpkg_autostart pkg do
     allow false
   end
@@ -26,18 +26,26 @@ node[:bcpc][:hadoop][:mounts].each do |i|
   end
 end
 
-bash "initialize-shared-edits" do
-  command "hdfs namenode -initializeSharedEdits"
-  # need more than ., .., in_use.lock
-  not_if { node[:bcpc][:hadoop][:mounts].all? { |i| Dir.entries("/disk/#{i}/dfs/jn/#{node.chef_environment}").include?("current") } }
+link "/usr/lib/hadoop-hdfs/libexec" do
+  to "/usr/lib/hadoop/libexec"
 end
 
+template "hadoop-hdfs-journalnode" do
+  path "/etc/init.d/hadoop-hdfs-journalnode"
+  source "hdp_hadoop-hdfs-journalnode.erb"
+  owner "root"
+  group "root"
+  mode "0755"
+  notifies :enable, "service[hadoop-hdfs-journalnode]"
+  notifies :start, "service[hadoop-hdfs-journalnode]"
+end
+
+
 service "hadoop-hdfs-journalnode" do
-  action [:enable, :start]
+  action :nothing
+  supports :status => true, :restart => true, :reload => false
   subscribes :restart, "template[/etc/hadoop/conf/hdfs-site.xml]", :delayed
   subscribes :restart, "bash[initialize-shared-edits]", :delayed
   subscribes :restart, "template[/etc/hadoop/conf/hdfs-site_HA.xml]", :delayed
 end
-
-
 
