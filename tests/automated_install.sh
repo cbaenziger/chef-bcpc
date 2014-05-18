@@ -23,14 +23,14 @@ export CLUSTER_VM_CPUs=4
 
 printf "#### Setup configuration files\n"
 # setup vagrant
-sed -i 's/vb.gui = true/vb.gui = false/' Vagrantfile
+sed -i"" 's/vb.gui = true/vb.gui = false/' Vagrantfile
 
 # setup proxy_setup.sh
-[[ -n "$PROXY" ]] && sed -i "s/#export PROXY=.*\"/export PROXY=\"$PROXY\"/" proxy_setup.sh
+[[ -n "$PROXY" ]] && sed -i"" "s/#export PROXY=.*\"/export PROXY=\"$PROXY\"/" proxy_setup.sh
 
 # setup environment file
-sed -i "s/\"dns_servers\" : \[ \"8.8.8.8\", \"8.8.4.4\" \]/\"dns_servers\" : \[ $DNS_SERVERS \]/" environments/${ENVIRONMENT}.json
-sed -i "s#\(\"bootstrap\": {\)#\1\n\"proxy\" : \"http://$PROXY\",\n#" environments/${ENVIRONMENT}.json
+sed -i"" "s/\"dns_servers\" : \[ \"8.8.8.8\", \"8.8.4.4\" \]/\"dns_servers\" : \[ $DNS_SERVERS \]/" environments/${ENVIRONMENT}.json
+sed -i"" "s#\(\"bootstrap\": {\)#\1\n\"proxy\" : \"http://$PROXY\",\n#" environments/${ENVIRONMENT}.json
 
 printf "#### Setup VB's and Bootstrap\n"
 source ./vbox_create.sh
@@ -50,9 +50,9 @@ for i in 1 2 3; do
 done
 
 printf "Checking VMs are up: \n"
-while ! nc -w 1 -q 0 10.0.100.11 22 || \
-         !  nc -w 1 -q 0 10.0.100.12 22 || \
-         !  nc -w 1 -q 0 10.0.100.13 22
+while ! nc -w 1 10.0.100.11 22 || \
+         !  nc -w 1 10.0.100.12 22 || \
+         !  nc -w 1 10.0.100.13 22
 do
   sleep 60
   printf "Hosts down: "
