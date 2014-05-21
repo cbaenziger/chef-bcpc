@@ -14,7 +14,7 @@ if [[ "$(pwd)" != "$(git rev-parse --show-toplevel)" ]]; then
 fi
 
 ENVIRONMENT=Test-Laptop
-PROXY=proxy.example.com:80
+#PROXY=proxy.example.com:80
 DNS_SERVERS='"8.8.8.8", "8.8.4.4"'
 export BOOTSTRAP_VM_MEM=3096
 export BOOTSTRAP_VM_CPUs=2
@@ -30,7 +30,7 @@ sed -i"" 's/vb.gui = true/vb.gui = false/' Vagrantfile
 
 # setup environment file
 sed -i"" "s/\"dns_servers\" : \[ \"8.8.8.8\", \"8.8.4.4\" \]/\"dns_servers\" : \[ $DNS_SERVERS \]/" environments/${ENVIRONMENT}.json
-sed -i"" "s#\(\"bootstrap\": {\)#\1\n\"proxy\" : \"http://$PROXY\",\n#" environments/${ENVIRONMENT}.json
+[[ -n "$PROXY" ]] && sed -i"" "s#\(\"bootstrap\": {\)#\1\n\"proxy\" : \"http://$PROXY\",\n#" environments/${ENVIRONMENT}.json
 
 printf "#### Setup VB's and Bootstrap\n"
 source ./vbox_create.sh
