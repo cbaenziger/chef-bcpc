@@ -57,7 +57,7 @@ do
   sleep 60
   printf "Hosts down: "
   for m in 11 12 13; do
-    nc -w 1 -q 0 10.0.100.$m 22 > /dev/null || echo -n "10.0.100.$m "
+    nc -w 1 10.0.100.$m 22 > /dev/null || echo -n "10.0.100.$m "
   done
   printf "\n"
 done
