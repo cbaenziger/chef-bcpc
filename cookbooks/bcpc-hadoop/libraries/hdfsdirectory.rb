@@ -2,7 +2,6 @@ require 'chef/config'
 require 'chef/log'
 require 'chef/resource/directory'
 require 'chef/provider'
-require 'webhdfs'
 require 'chef/search/query'
 require_relative 'utils'
 
@@ -16,6 +15,7 @@ class Chef
     end
 
     def load_current_resource
+      require 'webhdfs'
       @current_resource ||= Chef::Resource::Directory.new(@new_resource.name)
       @current_resource.path(@new_resource.path)
       @current_resource.mode(@new_resource.mode)
