@@ -8,6 +8,8 @@ additional services provided with these cookbooks - such as distributed
 storage, DNS, log aggregation/search, and monitoring - see below for a partial
 list of services provided by these cookbooks.
 
+The various envisioned deployment types can be seen in ![Image depicting VirtualBox cluster, OpenStack cluster, hardware cluster with VirtualBox bootstrap or purely hardware cluster.][BCPC Node Types.svg]
+
 OpenStack
 ---------
 
