@@ -32,4 +32,12 @@ end
 
 service "hbase-master" do
   action [:enable, :start]
+  supports :status => true, :restart => true, :reload => false
+  subscribes :restart, "template[/etc/hbase/conf/hbase-site.xml]", :delayed
+  subscribes :restart, "template[/etc/hbase/conf/hbase-policy.xml]", :delayed
+  subscribes :restart, "template[/etc/hbase/conf/hbase-env.sh]", :delayed
+  # workaround issue where master gets stuck in:
+  # "[...]Operation category WRITE is not supported in state standby[...]"
+  # when HDFS Namenode switches to HA due to lack of HDFS HA knowledge
+  subscribes :restart, "template[/etc/hadoop/conf/hdfs-site.xml]", :delayed
 end
