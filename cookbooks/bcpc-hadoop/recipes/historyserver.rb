@@ -9,4 +9,5 @@ end
 service "hadoop-mapreduce-historyserver" do
   supports :status => true, :restart => true, :reload => false
   action [:enable, :start]
+  subscribes :restart, "template[/etc/hadoop/conf/yarn-site.xml]", :delayed
 end
