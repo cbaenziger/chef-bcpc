@@ -44,7 +44,7 @@ template "/etc/cobbler/dhcp.template" do
     notifies :restart, "service[cobbler]", :delayed
 end
 
-cobbler_image 'ubuntu-12.04-minimal' do
+cobbler_image 'ubuntu-12.04-mini' do
   source "#{get_binary_server_url}/ubuntu-12.04-mini.iso"
   os_version 'precise'
   os_breed 'ubuntu'
