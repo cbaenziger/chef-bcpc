@@ -96,11 +96,17 @@ node[:bcpc][:hadoop][:mounts].each do |i|
   end
 end
 
-%w{hadoop-yarn-nodemanager hadoop-hdfs-datanode}.each do |svc|
-  service svc do
-    supports :status => true, :restart => true, :reload => false
-    action [:enable, :start]
-    subscribes :restart, "template[/etc/hadoop/conf/hdfs-site.xml]", :delayed
-    subscribes :restart, "template[/etc/hadoop/conf/yarn-site.xml]", :delayed
-  end
+service "hadoop-yarn-nodemanager" do
+  supports :status => true, :restart => true, :reload => false
+  action [:enable, :start]
+  subscribes :restart, "template[/etc/hadoop/conf/hadoop-env.sh]", :delayed
+  subscribes :restart, "template[/etc/hadoop/conf/hdfs-site.xml]", :delayed
+  subscribes :restart, "template[/etc/hadoop/conf/yarn-site.xml]", :delayed
+end
+
+service "hadoop-hdfs-datanode" do
+  supports :status => true, :restart => true, :reload => false
+  action [:enable, :start]
+  subscribes :restart, "template[/etc/hadoop/conf/hadoop-env.sh]", :delayed
+  subscribes :restart, "template[/etc/hadoop/conf/hdfs-site.xml]", :delayed
 end
