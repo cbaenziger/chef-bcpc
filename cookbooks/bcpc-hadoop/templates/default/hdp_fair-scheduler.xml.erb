@@ -2,8 +2,9 @@
 <allocations>
   <queue name="default">
     <weight>1.0</weight>
-    <schedulingPolicy>fair</schedulingPolicy>
+    <schedulingPolicy>DominantResourceFairnessPolicy</schedulingPolicy>
     <fairSharePreemptionTimeout>150</fairSharePreemptionTimeout>
+    <minResources>128 mb,1vcores</minResources>
   </queue>
 
   <queuePlacementPolicy>
