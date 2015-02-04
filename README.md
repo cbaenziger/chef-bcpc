@@ -4,4 +4,4 @@ Overview
 Hadoop
 ------
 
-The Hadoop code has moved! Please visit it at Bloomberg/Chef-BACH.
+The Hadoop code has moved! Please visit it at [Bloomberg/Chef-BACH](bloomberg/chef-bach).
